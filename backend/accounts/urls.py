@@ -1,8 +1,11 @@
 from django.urls import path
+from rest_framework_simplejwt.views import TokenRefreshView
 
-# TODO (Phase A, after model is GREEN):
-# path("register/", RegisterView.as_view(), name="register"),
-# path("login/", TokenObtainPairView.as_view(), name="login"),
-# path("login/refresh/", TokenRefreshView.as_view(), name="login-refresh"),
+from .views import EmailTokenObtainPairView, MeView, RegisterView
 
-urlpatterns = []
+urlpatterns = [
+    path("register/", RegisterView.as_view(), name="register"),
+    path("login/", EmailTokenObtainPairView.as_view(), name="login"),
+    path("login/refresh/", TokenRefreshView.as_view(), name="login-refresh"),
+    path("me/", MeView.as_view(), name="me"),
+]
