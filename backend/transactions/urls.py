@@ -1,5 +1,7 @@
 from django.urls import path
+from .views import PurchaseView, RestockView
 
-# TODO (Phase C): purchase/ and restock/ endpoints
-
-urlpatterns = []
+urlpatterns = [
+    path("purchase/", PurchaseView.as_view(), name="purchase"),
+    path("restock/", RestockView.as_view(), name="restock"),
+]
