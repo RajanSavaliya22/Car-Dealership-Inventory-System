@@ -19,6 +19,25 @@ export function AuthProvider({ children }) {
     authApi.setAuthToken(token);
   }, [token]);
 
+  useEffect(() => {
+    if (!token) {
+      setUser(null);
+      return;
+    }
+    let isCurrent = true;
+    authApi
+      .fetchMe()
+      .then((profile) => {
+        if (isCurrent) setUser(profile);
+      })
+      .catch(() => {
+        if (isCurrent) setUser(null);
+      });
+    return () => {
+      isCurrent = false;
+    };
+  }, [token]);
+
   async function login(email, password) {
     const data = await authApi.login(email, password);
     localStorage.setItem("access_token", data.access);
@@ -39,6 +58,7 @@ export function AuthProvider({ children }) {
     user,
     setUser,
     isAuthenticated: Boolean(token),
+    isAdmin: Boolean(user?.is_admin),
     login,
     logout,
   };
