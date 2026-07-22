@@ -1,5 +1,7 @@
-from django.urls import path
+from rest_framework.routers import DefaultRouter
+from .views import VehicleViewSet
 
-# TODO (Phase B): list/create/retrieve/update/delete + search & filter routes
+router = DefaultRouter()
+router.register("", VehicleViewSet, basename="vehicle")
 
-urlpatterns = []
+urlpatterns = router.urls

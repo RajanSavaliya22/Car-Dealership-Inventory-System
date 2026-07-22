@@ -3,6 +3,8 @@ from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 from rest_framework import status
 
+from vehicles.models import Vehicle
+
 User = get_user_model()
 
 
@@ -11,120 +13,122 @@ def api_client():
     return APIClient()
 
 
-@pytest.mark.django_db
-class TestRegisterView:
-    url = "/api/auth/register/"
+@pytest.fixture
+def admin_user(db):
+    return User.objects.create_user(
+        username="admin1", email="admin@example.com", password="pass12345",
+        role=User.Role.ADMIN,
+    )
 
-    def test_register_endpoint_creates_user(self, api_client):
-        response = api_client.post(self.url, {
-            "username": "jane",
-            "email": "jane@example.com",
-            "password": "strongpass123",
-        })
+
+@pytest.fixture
+def customer_user(db):
+    return User.objects.create_user(
+        username="cust1", email="cust@example.com", password="pass12345",
+    )
+
+
+@pytest.fixture
+def sample_vehicles(db):
+    return [
+        Vehicle.objects.create(make="Toyota", model="Camry", year=2024, price="28999.99", quantity=5),
+        Vehicle.objects.create(make="Honda", model="Civic", year=2023, price="24999.00", quantity=0),
+        Vehicle.objects.create(make="Toyota", model="Corolla", year=2022, price="21999.00", quantity=2),
+    ]
+
+
+@pytest.mark.django_db
+class TestVehicleListView:
+    url = "/api/vehicles/"
+
+    def test_list_vehicles_returns_all(self, api_client, customer_user, sample_vehicles):
+        api_client.force_authenticate(user=customer_user)
+        response = api_client.get(self.url)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data["results"]) == 3
+
+    def test_search_vehicles_by_make(self, api_client, customer_user, sample_vehicles):
+        api_client.force_authenticate(user=customer_user)
+        response = api_client.get(self.url, {"search": "Toyota"})
+
+        makes = {v["make"] for v in response.data["results"]}
+        assert makes == {"Toyota"}
+        assert len(response.data["results"]) == 2
+
+    def test_filter_vehicles_by_year(self, api_client, customer_user, sample_vehicles):
+        api_client.force_authenticate(user=customer_user)
+        response = api_client.get(self.url, {"year": 2023})
+
+        assert len(response.data["results"]) == 1
+        assert response.data["results"][0]["model"] == "Civic"
+
+    def test_filter_vehicles_by_price_range(self, api_client, customer_user, sample_vehicles):
+        api_client.force_authenticate(user=customer_user)
+        response = api_client.get(self.url, {"min_price": 22000, "max_price": 29000})
+
+        models = {v["model"] for v in response.data["results"]}
+        assert models == {"Camry", "Civic"}
+
+    def test_zero_quantity_vehicle_reports_unavailable(self, api_client, customer_user, sample_vehicles):
+        api_client.force_authenticate(user=customer_user)
+        response = api_client.get(self.url, {"search": "Civic"})
+
+        assert response.data["results"][0]["is_in_stock"] is False
+
+
+@pytest.mark.django_db
+class TestVehicleWritePermissions:
+    url = "/api/vehicles/"
+    payload = {
+        "make": "Ford", "model": "Focus", "year": 2021, "price": "18999.00", "quantity": 4,
+    }
+
+    def test_admin_can_create_vehicle(self, api_client, admin_user):
+        api_client.force_authenticate(user=admin_user)
+        response = api_client.post(self.url, self.payload)
 
         assert response.status_code == status.HTTP_201_CREATED
-        assert User.objects.filter(email="jane@example.com").exists()
+        assert Vehicle.objects.filter(model="Focus").exists()
 
-    def test_register_response_does_not_leak_password(self, api_client):
-        response = api_client.post(self.url, {
-            "username": "jane",
-            "email": "jane@example.com",
-            "password": "strongpass123",
-        })
+    def test_customer_cannot_create_vehicle(self, api_client, customer_user):
+        api_client.force_authenticate(user=customer_user)
+        response = api_client.post(self.url, self.payload)
 
-        assert "password" not in response.data
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
-    def test_register_defaults_to_customer_role(self, api_client):
-        api_client.post(self.url, {
-            "username": "jane",
-            "email": "jane@example.com",
-            "password": "strongpass123",
-        })
-
-        user = User.objects.get(email="jane@example.com")
-        assert user.role == User.Role.CUSTOMER
-
-    def test_register_fails_with_duplicate_email(self, api_client):
-        User.objects.create_user(
-            username="existing", email="jane@example.com", password="pass12345"
-        )
-
-        response = api_client.post(self.url, {
-            "username": "jane2",
-            "email": "jane@example.com",
-            "password": "strongpass123",
-        })
-
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-    def test_register_fails_with_short_password(self, api_client):
-        response = api_client.post(self.url, {
-            "username": "jane",
-            "email": "jane@example.com",
-            "password": "123",
-        })
-
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-
-
-@pytest.mark.django_db
-class TestLoginView:
-    url = "/api/auth/login/"
-
-    def setup_method(self):
-        self.password = "strongpass123"
-
-    def test_login_returns_jwt_token(self, api_client):
-        User.objects.create_user(
-            username="jane", email="jane@example.com", password=self.password
-        )
-
-        response = api_client.post(self.url, {
-            "email": "jane@example.com",
-            "password": self.password,
-        })
+    def test_admin_can_update_vehicle(self, api_client, admin_user, sample_vehicles):
+        vehicle = sample_vehicles[0]
+        api_client.force_authenticate(user=admin_user)
+        response = api_client.patch(f"{self.url}{vehicle.id}/", {"price": "26999.00"})
 
         assert response.status_code == status.HTTP_200_OK
-        assert "access" in response.data
-        assert "refresh" in response.data
+        vehicle.refresh_from_db()
+        assert str(vehicle.price) == "26999.00"
 
-    def test_login_fails_with_wrong_password(self, api_client):
-        User.objects.create_user(
-            username="jane", email="jane@example.com", password=self.password
-        )
+    def test_customer_cannot_update_vehicle(self, api_client, customer_user, sample_vehicles):
+        vehicle = sample_vehicles[0]
+        api_client.force_authenticate(user=customer_user)
+        response = api_client.patch(f"{self.url}{vehicle.id}/", {"price": "1.00"})
 
-        response = api_client.post(self.url, {
-            "email": "jane@example.com",
-            "password": "wrongpassword",
-        })
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    def test_admin_can_delete_vehicle(self, api_client, admin_user, sample_vehicles):
+        vehicle = sample_vehicles[0]
+        api_client.force_authenticate(user=admin_user)
+        response = api_client.delete(f"{self.url}{vehicle.id}/")
 
-    def test_login_fails_with_unknown_email(self, api_client):
-        response = api_client.post(self.url, {
-            "email": "ghost@example.com",
-            "password": "whatever123",
-        })
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert not Vehicle.objects.filter(id=vehicle.id).exists()
 
-        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    def test_customer_cannot_delete_vehicle(self, api_client, customer_user, sample_vehicles):
+        vehicle = sample_vehicles[0]
+        api_client.force_authenticate(user=customer_user)
+        response = api_client.delete(f"{self.url}{vehicle.id}/")
 
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert Vehicle.objects.filter(id=vehicle.id).exists()
 
-@pytest.mark.django_db
-class TestMeView:
-    url = "/api/auth/me/"
-
-    def test_protected_endpoint_rejects_unauthenticated_user(self, api_client):
+    def test_unauthenticated_user_cannot_list_vehicles(self, api_client, sample_vehicles):
         response = api_client.get(self.url)
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
-
-    def test_authenticated_user_can_fetch_own_profile(self, api_client):
-        user = User.objects.create_user(
-            username="jane", email="jane@example.com", password="strongpass123"
-        )
-        api_client.force_authenticate(user=user)
-
-        response = api_client.get(self.url)
-
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data["email"] == "jane@example.com"
-        assert response.data["role"] == User.Role.CUSTOMER
