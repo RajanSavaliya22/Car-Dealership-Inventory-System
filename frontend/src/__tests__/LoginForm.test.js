@@ -21,6 +21,7 @@ describe("LoginForm", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     localStorage.clear();
+    authApi.fetchMe.mockResolvedValue({ id: 1, email: "jane@example.com", role: "CUSTOMER", is_admin: false });
   });
 
   test("renders login form with email and password fields", () => {

@@ -4,7 +4,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
-// import AdminVehiclesPage from "./pages/AdminVehiclesPage";
+import AdminVehiclesPage from "./pages/AdminVehiclesPage";
 
 export default function App() {
   return (
@@ -21,14 +21,14 @@ export default function App() {
             </ProtectedRoute>
           }
         />
-        {/* <Route
+        <Route
           path="/admin/vehicles"
           element={
             <ProtectedRoute adminOnly>
               <AdminVehiclesPage />
             </ProtectedRoute>
           }
-        /> */}
+        />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </AuthProvider>
