@@ -8,6 +8,8 @@ export default function VehicleList() {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [year, setYear] = useState("");
+  const [purchasingId, setPurchasingId] = useState(null);
+  const [purchaseErrors, setPurchaseErrors] = useState({});
 
   useEffect(() => {
     let isCurrent = true;
@@ -42,15 +44,30 @@ export default function VehicleList() {
   }, [search, year]);
 
   function handlePurchase(vehicleId) {
-    vehiclesApi.purchaseVehicle(vehicleId).then(() => {
-      setVehicles((current) =>
-        current.map((v) =>
-          v.id === vehicleId
-            ? { ...v, quantity: v.quantity - 1, is_in_stock: v.quantity - 1 > 0 }
-            : v
-        )
-      );
-    });
+    setPurchasingId(vehicleId);
+    setPurchaseErrors((prev) => ({ ...prev, [vehicleId]: null }));
+
+    vehiclesApi
+      .purchaseVehicle(vehicleId)
+      .then(() => {
+        setVehicles((current) =>
+          current.map((v) =>
+            v.id === vehicleId
+              ? { ...v, quantity: v.quantity - 1, is_in_stock: v.quantity - 1 > 0 }
+              : v
+          )
+        );
+      })
+      .catch((err) => {
+        const detail = err?.response?.data?.detail;
+        const message = Array.isArray(detail)
+          ? detail[0]
+          : detail || "Unable to complete purchase. Please try again.";
+        setPurchaseErrors((prev) => ({ ...prev, [vehicleId]: message }));
+      })
+      .finally(() => {
+        setPurchasingId(null);
+      });
   }
 
   return (
@@ -82,7 +99,13 @@ export default function VehicleList() {
 
       <div>
         {vehicles.map((vehicle) => (
-          <VehicleCard key={vehicle.id} vehicle={vehicle} onPurchase={handlePurchase} />
+          <VehicleCard
+            key={vehicle.id}
+            vehicle={vehicle}
+            onPurchase={handlePurchase}
+            purchasing={purchasingId === vehicle.id}
+            purchaseError={purchaseErrors[vehicle.id]}
+          />
         ))}
       </div>
     </div>

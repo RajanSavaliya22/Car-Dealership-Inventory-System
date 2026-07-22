@@ -57,4 +57,23 @@ describe("VehicleCard", () => {
 
     expect(onPurchase).toHaveBeenCalledWith(1);
   });
+
+  test("purchase button shows 'Purchasing...' and is disabled while purchasing", () => {
+    render(<VehicleCard vehicle={inStockVehicle} onPurchase={jest.fn()} purchasing />);
+
+    const button = screen.getByRole("button", { name: /purchasing/i });
+    expect(button).toBeDisabled();
+  });
+
+  test("shows an error message when purchaseError is provided", () => {
+    render(
+      <VehicleCard
+        vehicle={inStockVehicle}
+        onPurchase={jest.fn()}
+        purchaseError="Someone just bought the last one."
+      />
+    );
+
+    expect(screen.getByText(/someone just bought the last one/i)).toBeInTheDocument();
+  });
 });

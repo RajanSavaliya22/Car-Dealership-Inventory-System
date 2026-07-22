@@ -3,7 +3,7 @@ function formatPrice(price) {
   return number.toLocaleString(undefined, { style: "currency", currency: "USD" });
 }
 
-export default function VehicleCard({ vehicle, onPurchase }) {
+export default function VehicleCard({ vehicle, onPurchase, purchasing = false, purchaseError = null }) {
   const outOfStock = vehicle.quantity === 0;
 
   return (
@@ -13,12 +13,13 @@ export default function VehicleCard({ vehicle, onPurchase }) {
       </h3>
       <p>{formatPrice(vehicle.price)}</p>
       <p>{outOfStock ? "Out of stock" : `${vehicle.quantity} in stock`}</p>
+      {purchaseError && <p role="alert">{purchaseError}</p>}
       <button
         type="button"
-        disabled={outOfStock}
+        disabled={outOfStock || purchasing}
         onClick={() => onPurchase(vehicle.id)}
       >
-        Purchase
+        {purchasing ? "Purchasing..." : "Purchase"}
       </button>
     </article>
   );

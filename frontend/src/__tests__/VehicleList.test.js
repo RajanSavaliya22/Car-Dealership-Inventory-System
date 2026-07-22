@@ -67,4 +67,35 @@ describe("VehicleList", () => {
 
     expect(disabledButton).toBeTruthy();
   });
+
+  test("shows an error on the card when purchase fails and does not decrement quantity", async () => {
+    const user = userEvent.setup();
+    vehiclesApi.purchaseVehicle.mockRejectedValue({
+      response: { data: { detail: "Not enough stock available to complete this purchase." } },
+    });
+
+    render(<VehicleList />);
+    await screen.findByText(/2023 Toyota Corolla/i);
+
+    await user.click(screen.getAllByRole("button", { name: /purchase/i })[0]);
+
+    expect(
+      await screen.findByText(/not enough stock available/i)
+    ).toBeInTheDocument();
+    expect(screen.getByText(/5 in stock/i)).toBeInTheDocument(); // unchanged
+  });
+
+  test("decrements quantity on the card after a successful purchase", async () => {
+    const user = userEvent.setup();
+    vehiclesApi.purchaseVehicle.mockResolvedValue({ id: 101, quantity: 1 });
+
+    render(<VehicleList />);
+    await screen.findByText(/2023 Toyota Corolla/i);
+
+    await user.click(screen.getAllByRole("button", { name: /purchase/i })[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText(/4 in stock/i)).toBeInTheDocument();
+    });
+  });
 });
