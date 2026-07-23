@@ -1,5 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+from decimal import Decimal
 
 
 class Vehicle(models.Model):
@@ -7,9 +8,24 @@ class Vehicle(models.Model):
     model = models.CharField(max_length=100)
     year = models.PositiveIntegerField()
     price = models.DecimalField(
-        max_digits=10, decimal_places=2, validators=[MinValueValidator(0)]
+        max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.00'))]
     )
     quantity = models.PositiveIntegerField(default=0, validators=[MinValueValidator(0)])
+    category = models.CharField(
+        max_length=50,
+        choices=[
+            ("Sedan", "Sedan"),
+            ("SUV", "SUV"),
+            ("Hatchback", "Hatchback"),
+            ("Truck", "Truck"),
+            ("Minivan", "Minivan"),
+            ("Coupe","Coupe"),
+            ("Convertible","Convertible"),
+            ("Sports", "Sports"),
+            ("Electric", "Electric"),
+        ],
+        default="Sedan",
+    )
     description = models.TextField(blank=True, default="")
     image_url = models.URLField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)

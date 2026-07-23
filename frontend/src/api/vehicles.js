@@ -23,3 +23,13 @@ export async function purchaseVehicle(vehicleId) {
   const response = await client.post(`/transactions/purchase/`, { vehicle: vehicleId });
   return response.data;
 }
+
+export async function fetchTransactions() {
+  const response = await client.get("/transactions/");
+  return response.data;
+}
+
+export async function restockVehicle(vehicleId, quantity) {
+  const response = await client.post(`/transactions/restock/`, { vehicle: vehicleId, quantity });
+  return response.data;
+}

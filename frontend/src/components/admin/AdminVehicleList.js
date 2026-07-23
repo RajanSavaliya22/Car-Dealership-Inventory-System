@@ -48,15 +48,23 @@ export default function AdminVehicleList() {
     setVehicles((current) => current.filter((v) => v.id !== vehicleId));
   }
 
-  return (
-    <div>
-      <h2>Manage Vehicles</h2>
+  // async function handleRestock(vehicleId) {
+  //   await vehiclesApi.restockVehicle(vehicleId);
+  //   await loadVehicles();
+  // }
 
-      {!formMode && (
-        <button type="button" onClick={handleAddClick}>
-          Add Vehicle
-        </button>
-      )}
+
+
+  return (
+    <div style={{ marginTop: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <h2 style={{ fontSize: '1.5rem' }}>Vehicle Inventory</h2>
+        {!formMode && (
+          <button type="button" className="btn-primary" style={{ width: 'auto', padding: '0.6rem 1.5rem' }} onClick={handleAddClick}>
+            + Add Vehicle
+          </button>
+        )}
+      </div>
 
       {formMode === "add" && (
         <VehicleForm onSubmit={handleSubmit} onCancel={handleCancel} />
@@ -71,23 +79,56 @@ export default function AdminVehicleList() {
       )}
 
       {loading && <p>Loading vehicles...</p>}
-      {error && <p role="alert">{error}</p>}
+      {error && <p className="alert-error" role="alert">{error}</p>}
 
-      <ul>
-        {vehicles.map((vehicle) => (
-          <li key={vehicle.id}>
-            <span>
-              {vehicle.year} {vehicle.make} {vehicle.model} — Qty: {vehicle.quantity}
-            </span>
-            <button type="button" onClick={() => handleEditClick(vehicle)}>
-              Edit
-            </button>
-            <button type="button" onClick={() => handleDelete(vehicle.id)}>
-              Delete
-            </button>
-          </li>
-        ))}
-      </ul>
+      {!loading && !error && vehicles.length > 0 && (
+        <div style={{ overflowX: 'auto' }}>
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Make</th>
+                <th>Model</th>
+                <th>Category</th>
+                <th>Year</th>
+                <th>Stock</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {vehicles.map((vehicle) => (
+                <tr key={vehicle.id}>
+                  <td>{vehicle.make}</td>
+                  <td>{vehicle.model}</td>
+                  <td>{vehicle.category}</td>
+                  <td>{vehicle.year}</td>
+                  <td>
+                    <span style={{
+                      padding: '0.3rem 0.8rem',
+                      borderRadius: '20px',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      backgroundColor: vehicle.quantity > 0 ? 'rgba(46, 213, 115, 0.1)' : 'rgba(255, 71, 87, 0.1)',
+                      color: vehicle.quantity > 0 ? '#2ed573' : '#ff4757',
+                    }}>
+                      {vehicle.quantity > 0 ? `${vehicle.quantity} In Stock` : 'Out of Stock'}
+                    </span>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button type="button" className="btn-secondary" onClick={() => handleEditClick(vehicle)}>
+                        Edit
+                      </button>
+                      <button type="button" className="btn-danger" onClick={() => handleDelete(vehicle.id)}>
+                        Delete
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

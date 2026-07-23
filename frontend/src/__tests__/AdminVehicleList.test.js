@@ -18,7 +18,7 @@ describe("AdminVehicleList", () => {
   test("renders vehicles with edit and delete controls", async () => {
     render(<AdminVehicleList />);
 
-    expect(await screen.findByText(/2023 Toyota Corolla/i)).toBeInTheDocument();
+    expect(await screen.findByText(/Corolla/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /edit/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /delete/i })).toBeInTheDocument();
   });
@@ -26,7 +26,7 @@ describe("AdminVehicleList", () => {
   test("shows add vehicle form when 'Add Vehicle' is clicked", async () => {
     const user = userEvent.setup();
     render(<AdminVehicleList />);
-    await screen.findByText(/2023 Toyota Corolla/i);
+    await screen.findByText(/Corolla/i);
 
     await user.click(screen.getByRole("button", { name: /add vehicle/i }));
 
@@ -37,7 +37,7 @@ describe("AdminVehicleList", () => {
     const user = userEvent.setup();
     vehiclesApi.createVehicle.mockResolvedValue({ id: 2, make: "Ford", model: "Focus" });
     render(<AdminVehicleList />);
-    await screen.findByText(/2023 Toyota Corolla/i);
+    await screen.findByText(/Corolla/i);
 
     await user.click(screen.getByRole("button", { name: /add vehicle/i }));
     await user.type(screen.getByLabelText(/make/i), "Ford");
@@ -59,7 +59,7 @@ describe("AdminVehicleList", () => {
     const user = userEvent.setup();
     vehiclesApi.updateVehicle.mockResolvedValue({ ...mockVehicles[0], quantity: 10 });
     render(<AdminVehicleList />);
-    await screen.findByText(/2023 Toyota Corolla/i);
+    await screen.findByText(/Corolla/i);
 
     await user.click(screen.getByRole("button", { name: /edit/i }));
     const quantityInput = screen.getByLabelText(/quantity/i);
@@ -79,7 +79,7 @@ describe("AdminVehicleList", () => {
     const user = userEvent.setup();
     vehiclesApi.deleteVehicle.mockResolvedValue();
     render(<AdminVehicleList />);
-    await screen.findByText(/2023 Toyota Corolla/i);
+    await screen.findByText(/Corolla/i);
 
     await user.click(screen.getByRole("button", { name: /delete/i }));
 
@@ -87,7 +87,7 @@ describe("AdminVehicleList", () => {
       expect(vehiclesApi.deleteVehicle).toHaveBeenCalledWith(1);
     });
     await waitFor(() => {
-      expect(screen.queryByText(/2023 Toyota Corolla/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Corolla/i)).not.toBeInTheDocument();
     });
   });
 });

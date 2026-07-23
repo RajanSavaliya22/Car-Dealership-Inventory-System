@@ -6,7 +6,20 @@ from rest_framework.views import APIView
 from vehicles.models import Vehicle
 from .models import Transaction
 from .permissions import IsAdmin
-from .serializers import PurchaseSerializer, RestockSerializer, TransactionSerializer
+from .serializers import PurchaseSerializer, RestockSerializer, TransactionSerializer, TransactionDetailSerializer
+
+
+class TransactionListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        if request.user.is_admin:
+            transactions = Transaction.objects.all()
+        else:
+            transactions = Transaction.objects.filter(user=request.user)
+            
+        serializer = TransactionDetailSerializer(transactions, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class PurchaseView(APIView):

@@ -26,20 +26,22 @@ describe("VehicleCard", () => {
   test("renders vehicle make, model, year and price", () => {
     render(<VehicleCard vehicle={inStockVehicle} onPurchase={jest.fn()} />);
 
-    expect(screen.getByText(/2023 Toyota Corolla/i)).toBeInTheDocument();
+    expect(screen.getByText("Toyota")).toBeInTheDocument();
+    expect(screen.getByText("Corolla")).toBeInTheDocument();
+    expect(screen.getByText("2023")).toBeInTheDocument();
     expect(screen.getByText(/21,?000/)).toBeInTheDocument();
   });
 
   test("purchase button is enabled when quantity is greater than zero", () => {
     render(<VehicleCard vehicle={inStockVehicle} onPurchase={jest.fn()} />);
 
-    expect(screen.getByRole("button", { name: /purchase/i })).toBeEnabled();
+    expect(screen.getByRole("button", { name: /order now/i })).toBeEnabled();
   });
 
   test("purchase button is disabled when quantity is zero", () => {
     render(<VehicleCard vehicle={outOfStockVehicle} onPurchase={jest.fn()} />);
 
-    expect(screen.getByRole("button", { name: /purchase/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /order now/i })).toBeDisabled();
   });
 
   test("shows out of stock label when quantity is zero", () => {
@@ -53,7 +55,7 @@ describe("VehicleCard", () => {
     const onPurchase = jest.fn();
     render(<VehicleCard vehicle={inStockVehicle} onPurchase={onPurchase} />);
 
-    await user.click(screen.getByRole("button", { name: /purchase/i }));
+    await user.click(screen.getByRole("button", { name: /order now/i }));
 
     expect(onPurchase).toHaveBeenCalledWith(1);
   });
@@ -61,7 +63,7 @@ describe("VehicleCard", () => {
   test("purchase button shows 'Purchasing...' and is disabled while purchasing", () => {
     render(<VehicleCard vehicle={inStockVehicle} onPurchase={jest.fn()} purchasing />);
 
-    const button = screen.getByRole("button", { name: /purchasing/i });
+    const button = screen.getByRole("button", { name: /processing/i });
     expect(button).toBeDisabled();
   });
 

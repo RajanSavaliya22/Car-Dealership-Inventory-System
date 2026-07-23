@@ -3,10 +3,12 @@ import AdminVehicleList from "../components/admin/AdminVehicleList";
 
 export default function AdminVehiclesPage() {
   return (
-    <div>
-      <header>
+    <div className="app-container">
+      <header className="page-header">
         <h1>Admin — Vehicle Management</h1>
-        <Link to="/dashboard">Back to Dashboard</Link>
+        <div className="header-actions">
+          <Link to="/dashboard" className="btn-secondary">Back to Dashboard</Link>
+        </div>
       </header>
       <AdminVehicleList />
     </div>
