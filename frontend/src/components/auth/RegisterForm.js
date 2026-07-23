@@ -13,7 +13,9 @@ export default function RegisterForm({ onSuccess }) {
   function firstErrorMessage(err) {
     const data = err?.response?.data;
     if (!data) return "Registration failed. Please try again.";
+    if (typeof data === "string") return "Registration failed. Server error.";
     const firstKey = Object.keys(data)[0];
+    if (!firstKey) return "Registration failed. Please try again.";
     const value = data[firstKey];
     return Array.isArray(value) ? value[0] : String(value);
   }

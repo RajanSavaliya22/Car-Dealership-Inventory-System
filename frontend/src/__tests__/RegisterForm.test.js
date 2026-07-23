@@ -31,7 +31,7 @@ describe("RegisterForm", () => {
     expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /register/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /create account/i })).toBeInTheDocument();
   });
 
   test("submits entered values to register api", async () => {
@@ -43,7 +43,7 @@ describe("RegisterForm", () => {
     await user.type(screen.getByLabelText(/username/i), "jane");
     await user.type(screen.getByLabelText(/email/i), "jane@example.com");
     await user.type(screen.getByLabelText(/password/i), "strongpass123");
-    await user.click(screen.getByRole("button", { name: /register/i }));
+    await user.click(screen.getByRole("button", { name: /create account/i }));
 
     await waitFor(() => {
       expect(authApi.register).toHaveBeenCalledWith("jane", "jane@example.com", "strongpass123");
@@ -61,7 +61,7 @@ describe("RegisterForm", () => {
     await user.type(screen.getByLabelText(/username/i), "jane");
     await user.type(screen.getByLabelText(/email/i), "jane@example.com");
     await user.type(screen.getByLabelText(/password/i), "strongpass123");
-    await user.click(screen.getByRole("button", { name: /register/i }));
+    await user.click(screen.getByRole("button", { name: /create account/i }));
 
     expect(await screen.findByText(/already exists/i)).toBeInTheDocument();
   });
@@ -75,7 +75,7 @@ describe("RegisterForm", () => {
     await user.type(screen.getByLabelText(/username/i), "jane");
     await user.type(screen.getByLabelText(/email/i), "jane@example.com");
     await user.type(screen.getByLabelText(/password/i), "strongpass123");
-    await user.click(screen.getByRole("button", { name: /register/i }));
+    await user.click(screen.getByRole("button", { name: /create account/i }));
 
     expect(await screen.findByText(/login page/i)).toBeInTheDocument();
   });

@@ -29,7 +29,7 @@ describe("LoginForm", () => {
 
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /log in/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /sign in/i })).toBeInTheDocument();
   });
 
   test("shows error on invalid login", async () => {
@@ -42,7 +42,7 @@ describe("LoginForm", () => {
 
     await user.type(screen.getByLabelText(/email/i), "jane@example.com");
     await user.type(screen.getByLabelText(/password/i), "wrongpass");
-    await user.click(screen.getByRole("button", { name: /log in/i }));
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
 
     expect(await screen.findByText(/no active account found/i)).toBeInTheDocument();
   });
@@ -55,7 +55,7 @@ describe("LoginForm", () => {
 
     await user.type(screen.getByLabelText(/email/i), "jane@example.com");
     await user.type(screen.getByLabelText(/password/i), "strongpass123");
-    await user.click(screen.getByRole("button", { name: /log in/i }));
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
 
     await waitFor(() => {
       expect(authApi.login).toHaveBeenCalledWith("jane@example.com", "strongpass123");
@@ -71,7 +71,7 @@ describe("LoginForm", () => {
         <AuthProvider>
           <Routes>
             <Route path="/login" element={<LoginForm />} />
-            <Route path="/dashboard" element={<div>Dashboard Page</div>} />
+            <Route path="/" element={<div>Home Page</div>} />
           </Routes>
         </AuthProvider>
       </MemoryRouter>
@@ -79,9 +79,9 @@ describe("LoginForm", () => {
 
     await user.type(screen.getByLabelText(/email/i), "jane@example.com");
     await user.type(screen.getByLabelText(/password/i), "strongpass123");
-    await user.click(screen.getByRole("button", { name: /log in/i }));
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
 
-    expect(await screen.findByText(/dashboard page/i)).toBeInTheDocument();
+    expect(await screen.findByText(/home page/i)).toBeInTheDocument();
   });
 
   test("stores token after successful login", async () => {
@@ -92,7 +92,7 @@ describe("LoginForm", () => {
 
     await user.type(screen.getByLabelText(/email/i), "jane@example.com");
     await user.type(screen.getByLabelText(/password/i), "strongpass123");
-    await user.click(screen.getByRole("button", { name: /log in/i }));
+    await user.click(screen.getByRole("button", { name: /sign in/i }));
 
     await waitFor(() => {
       expect(localStorage.getItem("access_token")).toBe("fake-access");
