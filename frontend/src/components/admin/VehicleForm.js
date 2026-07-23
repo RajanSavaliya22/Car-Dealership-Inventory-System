@@ -22,12 +22,22 @@ export default function VehicleForm({ initialValues, onSubmit, onCancel, hideTit
   async function handleSubmit(e) {
     e.preventDefault();
     setSubmitting(true);
+
+    const yearVal = parseInt(values.year, 10);
+    const priceVal = parseFloat(values.price);
+    const quantityVal = parseInt(values.quantity, 10);
+
     const payload = {
-      ...values,
-      year: parseInt(values.year, 10),
-      price: parseFloat(values.price),
-      quantity: parseInt(values.quantity, 10),
+      make: values.make?.trim(),
+      model: values.model?.trim(),
+      category: values.category,
+      year: isNaN(yearVal) ? new Date().getFullYear() : yearVal,
+      price: isNaN(priceVal) ? 0 : priceVal,
+      quantity: isNaN(quantityVal) ? 0 : quantityVal,
+      description: values.description ? values.description.trim() : "",
+      image_url: values.image_url ? values.image_url.trim() : "",
     };
+
     try {
       await onSubmit(payload);
     } finally {

@@ -4,6 +4,7 @@ from .models import Vehicle
 
 class VehicleSerializer(serializers.ModelSerializer):
     is_in_stock = serializers.BooleanField(read_only=True)
+    image_url = serializers.CharField(required=False, allow_blank=True, allow_null=True, default="")
 
     class Meta:
         model = Vehicle
