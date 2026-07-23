@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/static/css/main.ff048262.css",
+    "main.js": "/static/js/main.acdc0e7d.js",
+    "static/media/Porsche-911-GT3-RS-PNG-Free-File-Download.png": "/static/media/Porsche-911-GT3-RS-PNG-Free-File-Download.87959b038e7f8c2a9e12.png",
+    "static/media/bmw-removebg-preview.png": "/static/media/bmw-removebg-preview.0b5beed3a52422a9c542.png",
+    "index.html": "/index.html",
+    "main.ff048262.css.map": "/static/css/main.ff048262.css.map",
+    "main.acdc0e7d.js.map": "/static/js/main.acdc0e7d.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ff048262.css",
+    "static/js/main.acdc0e7d.js"
+  ]
+}

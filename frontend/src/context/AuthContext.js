@@ -31,7 +31,12 @@ export function AuthProvider({ children }) {
         if (isCurrent) setUser(profile);
       })
       .catch(() => {
-        if (isCurrent) setUser(null);
+        if (isCurrent) {
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+        }
       });
     return () => {
       isCurrent = false;
