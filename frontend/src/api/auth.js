@@ -2,7 +2,14 @@ import axios from "axios";
 
 
 
-const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:8000/api";
+let rawBase = process.env.REACT_APP_API_BASE || "http://localhost:8000/api";
+if (rawBase.endsWith("/")) {
+  rawBase = rawBase.slice(0, -1);
+}
+if (!rawBase.endsWith("/api")) {
+  rawBase = `${rawBase}/api`;
+}
+const API_BASE = rawBase;
 
 const client = axios.create({ baseURL: API_BASE });
 
