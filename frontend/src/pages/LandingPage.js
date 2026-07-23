@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+// removed react-router-dom imports
 import { useAuth } from "../context/AuthContext";
 import * as vehiclesApi from "../api/vehicles";
 import LoginForm from "../components/auth/LoginForm";
@@ -10,7 +10,7 @@ import porscheImage from "./assets/Porsche-911-GT3-RS-PNG-Free-File-Download.png
 
 export default function LandingPage() {
     const { user, logout } = useAuth();
-    const navigate = useNavigate();
+    // navigate unused right now, omitted to pass CI
     const [vehicles, setVehicles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -21,7 +21,7 @@ export default function LandingPage() {
     const [filterCategory, setFilterCategory] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 8;
-    const [filterMinPrice, setFilterMinPrice] = useState("");
+    // minprice unused but maxprice is
     const [filterMaxPrice, setFilterMaxPrice] = useState("");
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [authModalType, setAuthModalType] = useState(null);
@@ -391,10 +391,10 @@ export default function LandingPage() {
                     <div style={{ flex: '1 1 200px' }}>
                         <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1.5rem', color: '#fff' }}>Showroom</h4>
                         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                            <li><a href="#" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={e => e.target.style.color = '#ffffff'} onMouseLeave={e => e.target.style.color = '#94a3b8'}>New Arrivals</a></li>
-                            <li><a href="#" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={e => e.target.style.color = '#ffffff'} onMouseLeave={e => e.target.style.color = '#94a3b8'}>Pre-Owned</a></li>
-                            <li><a href="#" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={e => e.target.style.color = '#ffffff'} onMouseLeave={e => e.target.style.color = '#94a3b8'}>Special Offers</a></li>
-                            <li><a href="#" style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={e => e.target.style.color = '#ffffff'} onMouseLeave={e => e.target.style.color = '#94a3b8'}>Financing</a></li>
+                            <li><span style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s', cursor: 'pointer' }} onMouseEnter={e => e.target.style.color = '#ffffff'} onMouseLeave={e => e.target.style.color = '#94a3b8'}>New Arrivals</span></li>
+                            <li><span style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s', cursor: 'pointer' }} onMouseEnter={e => e.target.style.color = '#ffffff'} onMouseLeave={e => e.target.style.color = '#94a3b8'}>Pre-Owned</span></li>
+                            <li><span style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s', cursor: 'pointer' }} onMouseEnter={e => e.target.style.color = '#ffffff'} onMouseLeave={e => e.target.style.color = '#94a3b8'}>Special Offers</span></li>
+                            <li><span style={{ color: '#94a3b8', textDecoration: 'none', transition: 'color 0.2s', cursor: 'pointer' }} onMouseEnter={e => e.target.style.color = '#ffffff'} onMouseLeave={e => e.target.style.color = '#94a3b8'}>Financing</span></li>
                         </ul>
                     </div>
                     <div style={{ flex: '1 1 200px' }}>
@@ -417,8 +417,8 @@ export default function LandingPage() {
                 }}>
                     <p>&copy; {new Date().getFullYear()} AutoElite Dealerships. All rights reserved.</p>
                     <div style={{ display: 'flex', gap: '1.5rem' }}>
-                        <a href="#" style={{ color: '#64748b', textDecoration: 'none' }}>Privacy Policy</a>
-                        <a href="#" style={{ color: '#64748b', textDecoration: 'none' }}>Terms of Service</a>
+                        <span style={{ color: '#64748b', textDecoration: 'none', cursor: 'pointer' }}>Privacy Policy</span>
+                        <span style={{ color: '#64748b', textDecoration: 'none', cursor: 'pointer' }}>Terms of Service</span>
                     </div>
                 </div>
             </footer>
