@@ -11,16 +11,28 @@ const emptyValues = {
   category: "",
 };
 
-export default function VehicleForm({ initialValues, onSubmit, onCancel, hideTitle }) {
+export default function VehicleForm({ initialValues, onSubmit, onCancel, hideTitle, errorMessage }) {
   const [values, setValues] = useState({ ...emptyValues, ...initialValues });
+  const [submitting, setSubmitting] = useState(false);
 
   function handleChange(field) {
     return (e) => setValues((prev) => ({ ...prev, [field]: e.target.value }));
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
-    onSubmit(values);
+    setSubmitting(true);
+    const payload = {
+      ...values,
+      year: parseInt(values.year, 10),
+      price: parseFloat(values.price),
+      quantity: parseInt(values.quantity, 10),
+    };
+    try {
+      await onSubmit(payload);
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -28,6 +40,11 @@ export default function VehicleForm({ initialValues, onSubmit, onCancel, hideTit
       {!hideTitle && (
         <div style={{ gridColumn: '1 / -1' }}>
           <h3 style={{ marginBottom: '1.5rem', color: 'var(--primary-color)' }}>{initialValues ? 'Edit Vehicle' : 'Add New Vehicle'}</h3>
+        </div>
+      )}
+      {errorMessage && (
+        <div style={{ gridColumn: '1 / -1', marginBottom: '1rem' }}>
+          <p className="alert-error" role="alert">{errorMessage}</p>
         </div>
       )}
       <div className="form-group">
@@ -55,10 +72,10 @@ export default function VehicleForm({ initialValues, onSubmit, onCancel, hideTit
         <label htmlFor="vehicle-image">Image URL</label>
         <input
           id="vehicle-image"
-          type="url"
+          type="text"
+          placeholder="https://example.com/image.jpg"
           value={values.image_url}
           onChange={handleChange("image_url")}
-          required
         />
       </div>
 
@@ -70,7 +87,7 @@ export default function VehicleForm({ initialValues, onSubmit, onCancel, hideTit
           onChange={handleChange("category")}
           required
         >
-          <option value="">All Categories</option>
+          <option value="" disabled>-- Select Category --</option>
           <option value="Sports">Sports</option>
           <option value="Sedan">Sedan</option>
           <option value="SUV">SUV</option>
@@ -87,6 +104,8 @@ export default function VehicleForm({ initialValues, onSubmit, onCancel, hideTit
         <input
           id="vehicle-year"
           type="number"
+          min="1900"
+          max="2099"
           value={values.year}
           onChange={handleChange("year")}
           required
@@ -94,11 +113,12 @@ export default function VehicleForm({ initialValues, onSubmit, onCancel, hideTit
       </div>
 
       <div className="form-group">
-        <label htmlFor="vehicle-price">Price</label>
+        <label htmlFor="vehicle-price">Price ($)</label>
         <input
           id="vehicle-price"
           type="number"
           step="0.01"
+          min="0"
           value={values.price}
           onChange={handleChange("price")}
           required
@@ -109,6 +129,7 @@ export default function VehicleForm({ initialValues, onSubmit, onCancel, hideTit
         <input
           id="vehicle-quantity"
           type="number"
+          min="0"
           value={values.quantity}
           onChange={handleChange("quantity")}
           required
@@ -124,9 +145,11 @@ export default function VehicleForm({ initialValues, onSubmit, onCancel, hideTit
         />
       </div>
       <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        <button type="submit" className="btn-primary" style={{ width: 'auto', padding: '0.8rem 2rem' }}>Save</button>
+        <button type="submit" className="btn-primary" disabled={submitting} style={{ width: 'auto', padding: '0.8rem 2rem' }}>
+          {submitting ? 'Saving...' : 'Save'}
+        </button>
         {onCancel && (
-          <button type="button" className="btn-secondary" onClick={onCancel}>
+          <button type="button" className="btn-secondary" onClick={onCancel} disabled={submitting}>
             Cancel
           </button>
         )}

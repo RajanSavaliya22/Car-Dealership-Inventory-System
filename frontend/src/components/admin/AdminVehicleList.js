@@ -21,39 +21,52 @@ export default function AdminVehicleList() {
     loadVehicles();
   }, [loadVehicles]);
 
+  const [formError, setFormError] = useState(null);
+
   function handleAddClick() {
+    setFormError(null);
     setFormMode("add");
   }
 
   function handleEditClick(vehicle) {
+    setFormError(null);
     setFormMode({ editing: vehicle });
   }
 
   function handleCancel() {
+    setFormError(null);
     setFormMode(null);
   }
 
   async function handleSubmit(values) {
-    if (formMode === "add") {
-      await vehiclesApi.createVehicle(values);
-    } else if (formMode?.editing) {
-      await vehiclesApi.updateVehicle(formMode.editing.id, values);
+    setFormError(null);
+    try {
+      if (formMode === "add") {
+        await vehiclesApi.createVehicle(values);
+      } else if (formMode?.editing) {
+        await vehiclesApi.updateVehicle(formMode.editing.id, values);
+      }
+      setFormMode(null);
+      await loadVehicles();
+    } catch (err) {
+      const data = err?.response?.data;
+      if (data && typeof data === "object") {
+        const messages = Object.entries(data).map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : val}`);
+        setFormError(messages.join(" | "));
+      } else {
+        setFormError("Failed to save vehicle. Please check inputs.");
+      }
     }
-    setFormMode(null);
-    await loadVehicles();
   }
 
   async function handleDelete(vehicleId) {
-    await vehiclesApi.deleteVehicle(vehicleId);
-    setVehicles((current) => current.filter((v) => v.id !== vehicleId));
+    try {
+      await vehiclesApi.deleteVehicle(vehicleId);
+      setVehicles((current) => current.filter((v) => v.id !== vehicleId));
+    } catch (err) {
+      setError("Failed to delete vehicle.");
+    }
   }
-
-  // async function handleRestock(vehicleId) {
-  //   await vehiclesApi.restockVehicle(vehicleId);
-  //   await loadVehicles();
-  // }
-
-
 
   return (
     <div style={{ marginTop: '2rem' }}>
@@ -67,7 +80,7 @@ export default function AdminVehicleList() {
       </div>
 
       {formMode === "add" && (
-        <VehicleForm onSubmit={handleSubmit} onCancel={handleCancel} />
+        <VehicleForm onSubmit={handleSubmit} onCancel={handleCancel} errorMessage={formError} />
       )}
 
       {formMode?.editing && (
@@ -75,6 +88,7 @@ export default function AdminVehicleList() {
           initialValues={formMode.editing}
           onSubmit={handleSubmit}
           onCancel={handleCancel}
+          errorMessage={formError}
         />
       )}
 
