@@ -20,7 +20,6 @@ export default function LandingPage() {
     const [filterCategory, setFilterCategory] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 8;
-    // minprice unused but maxprice is
     const [filterMaxPrice, setFilterMaxPrice] = useState("");
     const [selectedVehicle, setSelectedVehicle] = useState(null);
     const [authModalType, setAuthModalType] = useState(null);
